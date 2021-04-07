@@ -20,7 +20,7 @@ const getAnomalies = (files, analysis_type) => {
   }
 
   return fetch(
-    `http://localhost:5000/anomalies?analysis_type=${escape(analysis_type)}`,
+    `https://tala-backend.herokuapp.com/anomalies?analysis_type=${escape(analysis_type)}`,
     {
       method: "POST",
       body: formData,
