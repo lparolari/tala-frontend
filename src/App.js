@@ -18,7 +18,7 @@ const getAnomalies = (files, analysis_type) => {
   }
 
   return fetch(
-    `https://tala-backend.herokuapp.comqWW/anomalies?analysis_type=${escape(
+    `https://tala-backend.herokuapp.com/anomalies?analysis_type=${escape(
       analysis_type
     )}`,
     {
@@ -84,9 +84,17 @@ function App({ t }) {
                   id="attendanceLists"
                   label={t("Select .csv files")}
                   custom
-                  onChange={(e) => setSelectedFiles(e.target.files)}
                   multiple
+                  data-browse={t("Upload")}
+                  onChange={(e) => setSelectedFiles(e.target.files)}
                   style={{ maxWidth: 280 }}
+                  isValid={selectedFiles && selectedFiles.length > 0}
+                  feedback={t("uploaded_files", {
+                    count:
+                      selectedFiles && selectedFiles.length
+                        ? selectedFiles.length
+                        : 0,
+                  })}
                 />
               </Col>
             </Form.Group>
