@@ -57,17 +57,32 @@ function App({ t }) {
       <Row>
         <Col>
           <Jumbotron>
-            <h1 className="header">
-              <Trans>Analyze MS Teams Attendance Lists</Trans>
-            </h1>
-            <p dangerouslySetInnerHTML={{ __html: t("main_description") }} />
-            <p>{t("results_description")}</p>
-            <ul>
-              <li
-                dangerouslySetInnerHTML={{ __html: t("joined_description") }}
-              />
-              <li dangerouslySetInnerHTML={{ __html: t("left_description") }} />
-            </ul>
+            <div className="text-center">
+              <a href="/">
+                <img
+                  className="img-fluid"
+                  style={{ height: 100 }}
+                  src="logo.png"
+                />
+              </a>
+            </div>
+            <div className="mt-5">
+              <h1 className="header">
+                <Trans>Analyze MS Teams Attendance Lists</Trans>
+              </h1>
+            </div>
+            <div className="mt-5">
+              <p dangerouslySetInnerHTML={{ __html: t("main_description") }} />
+              <p>{t("results_description")}</p>
+              <ul>
+                <li
+                  dangerouslySetInnerHTML={{ __html: t("joined_description") }}
+                />
+                <li
+                  dangerouslySetInnerHTML={{ __html: t("left_description") }}
+                />
+              </ul>
+            </div>
           </Jumbotron>
         </Col>
       </Row>
@@ -148,6 +163,11 @@ function App({ t }) {
             </a>
             )
           </p>
+        </Col>
+        <Col className="text-center">
+          <a href="/">
+            <img style={{ height: 50 }} src="logo.png" />
+          </a>
         </Col>
         <Col className="text-right">
           <button onClick={() => i18n.changeLanguage("it")} className="btn">
