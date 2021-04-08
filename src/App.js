@@ -1,16 +1,14 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Jumbotron,
-  Form,
-  Row,
-  Col,
-  Card,
-  Table,
-} from "react-bootstrap";
-
-// const JOINED_ANALYSIS_TYPE = 1;
-// const LEFT_ANALYSIS_TYPE = 2;
+import { Container, Jumbotron, Form, Row, Col } from "react-bootstrap";
+import { withTranslation, Trans } from "react-i18next";
+import { trackPromise, usePromiseTracker } from "react-promise-tracker";
+import Loading from "./components/Loading";
+import PleaseSelect from "./components/PleaseSelect";
+import Error from "./components/Error";
+import { responseOrThrow, toJson } from "./promise";
+import AnomaliesViewer from "./components/AnomaliesViewer";
+import i18n from "./i18n";
 
 const getAnomalies = (files, analysis_type) => {
   let formData = new FormData();
@@ -20,7 +18,9 @@ const getAnomalies = (files, analysis_type) => {
   }
 
   return fetch(
-    `https://tala-backend.herokuapp.com/anomalies?analysis_type=${escape(analysis_type)}`,
+    `https://tala-backend.herokuapp.comqWW/anomalies?analysis_type=${escape(
+      analysis_type
+    )}`,
     {
       method: "POST",
       body: formData,
@@ -28,41 +28,46 @@ const getAnomalies = (files, analysis_type) => {
   );
 };
 
-const responseOrThrow = (response) => {
-  if (!response.ok) {
-    const err = new Error(`HTTP error code ${response.status}`);
-    throw err;
-  }
-  return response;
-};
-
-const toJson = (response) => {
-  return response.json();
-};
-
-function App() {
+// eslint-disable-next-line react/prop-types
+function App({ t }) {
   const [selectedFiles, setSelectedFiles] = useState(undefined);
   const [selectedAnalysisType, setSelectedAnalysisType] = useState("Left");
   const [data, setData] = useState(undefined);
   const [err, setErr] = useState(undefined);
 
+  const { promiseInProgress } = usePromiseTracker();
+
+  const isLoading = promiseInProgress;
+  const isError = !!err;
+  const isSelected = !!selectedFiles;
+
   useEffect(() => {
     selectedFiles &&
-      getAnomalies(selectedFiles, selectedAnalysisType)
-        .then(responseOrThrow)
-        .then(toJson)
-        .then(setData)
-        .catch(setErr);
+      trackPromise(
+        getAnomalies(selectedFiles, selectedAnalysisType)
+          .then(responseOrThrow)
+          .then(toJson)
+          .then(setData)
+          .catch(setErr)
+      );
   }, [selectedFiles, selectedAnalysisType]);
-
-  console.log(data);
 
   return (
     <Container className="p-3">
       <Row>
         <Col>
           <Jumbotron>
-            <h1 className="header">Analyze MS Teams Attendance Lists</h1>
+            <h1 className="header">
+              <Trans>Analyze MS Teams Attendance Lists</Trans>
+            </h1>
+            <p dangerouslySetInnerHTML={{ __html: t("main_description") }} />
+            <p>{t("results_description")}</p>
+            <ul>
+              <li
+                dangerouslySetInnerHTML={{ __html: t("joined_description") }}
+              />
+              <li dangerouslySetInnerHTML={{ __html: t("left_description") }} />
+            </ul>
           </Jumbotron>
         </Col>
       </Row>
@@ -72,12 +77,12 @@ function App() {
           <Form encType="multipart/form-data">
             <Form.Group as={Row}>
               <Form.Label column sm={2}>
-                Attendance list(s)
+                <Trans>Attendance list(s)</Trans>
               </Form.Label>
               <Col sm={10}>
                 <Form.File
                   id="attendanceLists"
-                  label="Select .csv files"
+                  label={t("Select .csv files")}
                   custom
                   onChange={(e) => setSelectedFiles(e.target.files)}
                   multiple
@@ -87,7 +92,7 @@ function App() {
             </Form.Group>
             <Form.Group as={Row}>
               <Form.Label column sm={2}>
-                Analysis type
+                <Trans>Analysis type</Trans>
               </Form.Label>
               <Col sm={10}>
                 <Form.Control
@@ -97,8 +102,8 @@ function App() {
                   custom
                   style={{ maxWidth: 280 }}
                 >
-                  <option>Joined</option>
-                  <option>Left</option>
+                  <option value="Joined">{t("Joined")}</option>
+                  <option value="Left">{t("Left")}</option>
                 </Form.Control>
               </Col>
             </Form.Group>
@@ -109,58 +114,44 @@ function App() {
       <Row className="mt-3">
         <Col md="12">
           <p>
-            <b>Results</b>
+            <b>
+              <Trans>Results</Trans>
+            </b>
           </p>
         </Col>
-        {(err && (
-          <Col md={12}>
-            <p className="text-danger">Oops, there was an error :(</p>
-          </Col>
-        )) || (
-          <Col>
-            <Row>
-              {(!data && (
-                <Col md={12}>
-                  <p>Please select an attendance list</p>
-                </Col>
-              )) ||
-                (data.length == 0 && (
-                  <Col md={12}>
-                    <p>No anomalies found :)</p>
-                  </Col>
-                )) ||
-                data.map((x, i) => (
-                  <Col key={`card-${i}`}>
-                    <Card className="mt-2">
-                      <Card.Header>{x.filename}</Card.Header>
-                      <Card.Body>
-                        <Table>
-                          <thead>
-                            <tr>
-                              <th>Name</th>
-                              <th>Anomaly (+/-mm:ss)</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {x &&
-                              x.outliers.map((x, j) => (
-                                <tr key={`anomaly-${i}-${j}`}>
-                                  <td>{x.participant}</td>
-                                  <td>{x.delta}</td>
-                                </tr>
-                              ))}
-                          </tbody>
-                        </Table>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
-            </Row>
-          </Col>
-        )}
+
+        <Col>
+          <Row>
+            {(isLoading && <Loading />) ||
+              (isError && <Error />) ||
+              (!isSelected && <PleaseSelect />) || (
+                <AnomaliesViewer data={data} />
+              )}
+          </Row>
+        </Col>
+      </Row>
+      <hr />
+      <Row>
+        <Col>
+          <p className="text-muted">
+            &copy; 2021 - Luca Parolari (
+            <a href="mailto:luca.paroalri23@gmail.com">
+              luca.parolari23@gmail.com
+            </a>
+            )
+          </p>
+        </Col>
+        <Col className="text-right">
+          <button onClick={() => i18n.changeLanguage("it")} className="btn">
+            IT
+          </button>
+          <button onClick={() => i18n.changeLanguage("en")} className="btn">
+            EN
+          </button>
+        </Col>
       </Row>
     </Container>
   );
 }
 
-export default App;
+export default withTranslation("translations")(App);
