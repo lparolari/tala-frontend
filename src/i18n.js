@@ -12,7 +12,8 @@ i18n
         translations: {
           oops_error: "Oops, there was an error :(",
           no_anomalies: "No anomalies found :)",
-          uploaded_files: "Uploaded {{n_files}} file",
+          uploaded_files: "Uploaded {{count}} file",
+          uploaded_files_plural: "Uploaded {{count}} files",
           main_description:
             "Upload an attendance list and see who joined (or left) before or after the majority of participants. These outliers are then showed in tables reporting the difference in minutes (format: <code>mm:ss</code>, example 03:22) from the average.",
           results_description: "Results depend on analysis type:",
