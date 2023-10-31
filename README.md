@@ -51,6 +51,15 @@ yarn start
 * [tala-research](https://github.com/lparolari/ms-teams-attendance-list-analyzer),
   TALA researches for best model.
 
+## Release
+
+Build an image and push it to Dockerhub.
+
+```
+docker build lparolari/tala:tala-frontend-latest -f deploy/Dockerfile .
+docker push lparolari/tala:tala-frontend-latest
+```
+
 ## Author
 
 Luca Parolari
