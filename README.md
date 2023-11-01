@@ -22,7 +22,7 @@ interesting!
 
 ## Demo
 
-> [🚀 Try it out!](https://tala-frontend.herokuapp.com)
+> [🚀 Try it out!](http://tala.lparolari.xyz/)
 
 ![Example](./docs/example-1.png)
 
